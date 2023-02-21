@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
+const fs = require('fs');
 const { Circle, Triangle, Square } = require('./lib/shapes');
-const renderBadge = require('./lib/render');
+const render = require('./lib/render');
 
 // Prompt the user for the badge shape and color
 inquirer.prompt([
@@ -8,7 +9,7 @@ inquirer.prompt([
     type: 'list',
     name: 'shape',
     message: 'Choose a shape:',
-    choices: ['circle', 'triangle', 'square'],
+    choices: ['square', 'triangle', 'circle'],
   },
   {
     type: 'list',
@@ -37,6 +38,10 @@ inquirer.prompt([
   // Generate the SVG badge
   const svg = shape.render();
 
-  // Render the badge
-  render(svg);
+  // Write the SVG data to a file
+  const filename = `${answers.color}-${answers.shape}.svg`;
+  fs.writeFile(filename, svg, (err) => {
+    if (err) throw err;
+    console.log(`Badge saved to ${filename}`);
+  });
 });
