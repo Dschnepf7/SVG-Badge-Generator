@@ -3,45 +3,67 @@ const fs = require('fs');
 const { Circle, Triangle, Square } = require('./lib/shapes');
 const render = require('./lib/render');
 
-// Prompt the user for the badge shape and color
-inquirer.prompt([
-  {
-    type: 'list',
-    name: 'shape',
-    message: 'Choose a shape:',
-    choices: ['square', 'triangle', 'circle'],
-  },
-  {
-    type: 'list',
-    name: 'color',
-    message: 'Choose a color:',
-    choices: ['red', 'green', 'blue'],
-  },
-]).then((answers) => {
-  // Create the appropriate shape object
-  let shape;
-  switch (answers.shape) {
-    case 'circle':
-      shape = new Circle();
-      break;
-    case 'triangle':
-      shape = new Triangle();
-      break;
-    case 'square':
-      shape = new Square();
-      break;
-  }
+inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'text',
+      message: 'Enter up to three characters for the text:',
+      validate: (input) =>
+        input.length > 0 && input.length <= 3
+          ? true
+          : 'Please enter between 1 and 3 characters for the text',
+    },
+    {
+      type: 'input',
+      name: 'textColor',
+      message:
+        'Enter a color keyword or hexadecimal number for the text color:',
+      validate: (input) =>
+        /^#([0-9a-fA-F]{3}){1,2}$|^red$|^green$|^blue$|^white$|^black$/.test(
+          input
+        )
+          ? true
+          : 'Please enter a valid color keyword or hexadecimal number',
+    },
+    {
+      type: 'list',
+      name: 'shape',
+      message: 'Choose a shape:',
+      choices: ['circle', 'triangle', 'square'],
+    },
+    {
+      type: 'input',
+      name: 'color',
+      message:
+        'Enter a color keyword or hexadecimal number for the shape color:',
+      validate: (input) =>
+        /^#([0-9a-fA-F]{3}){1,2}$|^red$|^green$|^blue$|^white$|^black$/.test(
+          input
+        )
+          ? true
+          : 'Please enter a valid color keyword or hexadecimal number',
+    },
+  ])
+  .then((answers) => {
+    let shape;
 
-  // Set the shape color
-  shape.setColor(answers.color);
+    switch (answers.shape) {
+      case 'circle':
+        shape = Circle;
+        break;
+      case 'triangle':
+        shape = Triangle;
+        break;
+      case 'square':
+        shape = Square;
+        break;
+    }
 
-  // Generate the SVG badge
-  const svg = shape.render();
+    const svg = render(shape, answers.color, 300, answers.textColor, answers.text);
 
-  // Write the SVG data to a file
-  const filename = `${answers.color}-${answers.shape}.svg`;
-  fs.writeFile(filename, svg, (err) => {
-    if (err) throw err;
-    console.log(`Badge saved to ${filename}`);
+    fs.writeFile('logo.svg', svg, (err) => {
+      if (err) throw err;
+      console.log('Generated logo.svg');
+    });
   });
-});
