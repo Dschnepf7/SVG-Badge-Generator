@@ -1,6 +1,9 @@
 # SVG-Badge-Generator
 This application is designed to generate a SVG badge based on user inputs from inquirer.
 
+## Walkthrough
+https://drive.google.com/file/d/1r10-RrSQY2Z0oSLzFdi_LMggqJBqaL1P/view
+
 ## Installation
 This application requires inquirer and jest. Install with command "npm i" in package.json file terminal.
 
