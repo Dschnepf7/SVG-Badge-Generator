@@ -4,6 +4,10 @@ This application is designed to generate a SVG badge based on user inputs from i
 ## Walkthrough
 https://drive.google.com/file/d/1PjYAGudQbZv5Rk9hm_CVJ_Sliva8g8pA/view
 
+## Example
+
+![Image](./svg-logo/logo.svg)
+
 ## Installation
 This application requires inquirer and jest. Install with command "npm i" in package.json file terminal.
 
