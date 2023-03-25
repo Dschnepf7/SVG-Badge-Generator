@@ -1,69 +1,58 @@
 const inquirer = require('inquirer');
-const fs = require('fs');
-const { Circle, Triangle, Square } = require('./lib/shapes');
-const render = require('./lib/render');
+const {writeFile} = require('fs/promises');
+const {Circle, Triangle, Square } = require('./lib/shapes');
+const Svg = require("./lib/render");
+const questions = [
+    {
+        type: 'input',
+        name: 'text',
+        message: 'Enter up to three characters for the logo:',
+        validate: function(values){
+            if (values.length > 3 ){
+                return 'Text must be less than or equal to three characters';
+            }
+            return true;
+        }
+    },
+    {
+        type: 'input',
+        name: 'textColor',
+        message: 'Enter the text color (keyword or color#):'
+    },
+    {
+        type: 'list',
+        name: 'shapeType',
+        message: 'Select a shape:',
+        choices: ['Circle', 'Triangle', 'Square']
 
+    },
+    {
+        type: 'input',
+        name: 'shapeColor',
+        message: 'Enter the shape color (keyword or color#):'
+    }
+    
+];
 inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'text',
-      message: 'Enter up to three characters for the text:',
-      validate: (input) =>
-        input.length > 0 && input.length <= 3
-          ? true
-          : 'Please enter between 1 and 3 characters for the text',
-    },
-    {
-      type: 'input',
-      name: 'textColor',
-      message:
-        'Enter a color keyword or hexadecimal number for the text color:',
-      validate: (input) =>
-        /^#([0-9a-fA-F]{3}){1,2}$|^red$|^green$|^blue$|^white$|^black$/.test(
-          input
-        )
-          ? true
-          : 'Please enter a valid color keyword or hexadecimal number',
-    },
-    {
-      type: 'list',
-      name: 'shape',
-      message: 'Choose a shape:',
-      choices: ['circle', 'triangle', 'square'],
-    },
-    {
-      type: 'input',
-      name: 'color',
-      message:
-        'Enter a color keyword or hexadecimal number for the shape color:',
-      validate: (input) =>
-        /^#([0-9a-fA-F]{3}){1,2}$|^red$|^green$|^blue$|^white$|^black$/.test(
-          input
-        )
-          ? true
-          : 'Please enter a valid color keyword or hexadecimal number',
-    },
-  ])
-  .then((answers) => {
+.prompt(questions)
+.then(({text,textColor, shapeType, shapeColor})=>{
     let shape;
-
-    switch (answers.shape) {
-      case 'circle':
-        shape = Circle;
-        break;
-      case 'triangle':
-        shape = Triangle;
-        break;
-      case 'square':
-        shape = Square;
+    switch (shapeType){
+        case 'Circle':
+            shape = new Circle();
+            break;
+        case 'Triangle':
+            shape= new Triangle();
+            break;
+        default: 
+        shape = new Square();
         break;
     }
-
-    const svg = render(shape, answers.color, 300, answers.textColor, answers.text);
-
-    fs.writeFile('logo.svg', svg, (err) => {
-      if (err) throw err;
-      console.log('Generated logo.svg');
-    });
-  });
+    shape.setColor(shapeColor)
+    const svg = new Svg()
+    svg.setText(text, textColor)
+    svg.setShape(shape)
+    return writeFile("./logo-page/logo.svg", svg.render())
+})
+.then(()=> console.log("Generated logo.svg"))
+.catch(err => console.log(err));
